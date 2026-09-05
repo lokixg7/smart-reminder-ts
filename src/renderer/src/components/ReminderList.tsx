@@ -1,5 +1,6 @@
 import type { Reminder } from '../../../shared/types'
 import { formatDueAt, repeatLabel } from '../lib/format'
+import { useI18n } from '../i18n'
 
 interface ReminderListProps {
   reminders: Reminder[]
@@ -7,13 +8,15 @@ interface ReminderListProps {
 }
 
 export function ReminderList({ reminders, onChange }: ReminderListProps): JSX.Element {
+  const { language, t } = useI18n()
+
   async function toggle(reminder: Reminder): Promise<void> {
     await window.api.updateReminder(reminder.id, { enabled: !reminder.enabled })
     onChange()
   }
 
   async function remove(reminder: Reminder): Promise<void> {
-    if (!window.confirm(`删除提醒“${reminder.title}”？`)) return
+    if (!window.confirm(t('deleteConfirm', { title: reminder.title }))) return
     await window.api.removeReminder(reminder.id)
     onChange()
   }
@@ -21,8 +24,8 @@ export function ReminderList({ reminders, onChange }: ReminderListProps): JSX.El
   if (reminders.length === 0) {
     return (
       <div className="empty panel">
-        <p>还没有提醒</p>
-        <span>用 AI 自然语言创建第一个提醒吧</span>
+        <p>{t('emptyTitle')}</p>
+        <span>{t('emptyHint')}</span>
       </div>
     )
   }
@@ -34,8 +37,8 @@ export function ReminderList({ reminders, onChange }: ReminderListProps): JSX.El
           <div className="reminder-main">
             <h3>{reminder.title}</h3>
             <p className="reminder-time">
-              {formatDueAt(reminder.dueAt)}
-              <span className="repeat-badge">{repeatLabel(reminder.repeat)}</span>
+              {formatDueAt(reminder.dueAt, language)}
+              <span className="repeat-badge">{repeatLabel(reminder.repeat, language)}</span>
             </p>
             {reminder.note && <p className="reminder-note">{reminder.note}</p>}
           </div>
@@ -46,10 +49,10 @@ export function ReminderList({ reminders, onChange }: ReminderListProps): JSX.El
                 checked={reminder.enabled}
                 onChange={() => void toggle(reminder)}
               />
-              <span>{reminder.enabled ? '已开启' : '已暂停'}</span>
+              <span>{reminder.enabled ? t('enabled') : t('paused')}</span>
             </label>
             <button className="ghost danger" onClick={() => void remove(reminder)} type="button">
-              删除
+              {t('deleteAction')}
             </button>
           </div>
         </li>

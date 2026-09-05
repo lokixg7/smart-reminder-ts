@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { ReminderDraft } from '../../../shared/types'
 import { formatDueAt, repeatLabel } from '../lib/format'
+import { useI18n } from '../i18n'
 
 type ComposerMode = 'ai' | 'manual'
 
@@ -9,6 +10,7 @@ interface ComposerProps {
 }
 
 export function Composer({ onCreated }: ComposerProps): JSX.Element {
+  const { language, t } = useI18n()
   const [mode, setMode] = useState<ComposerMode>('ai')
   const [text, setText] = useState('')
   const [aiBusy, setAiBusy] = useState(false)
@@ -56,13 +58,13 @@ export function Composer({ onCreated }: ComposerProps): JSX.Element {
   async function handleManualCreate(): Promise<void> {
     const title = manualTitle.trim()
     if (!title || !manualDue) {
-      setError('请填写标题和提醒时间。')
+      setError(t('errorFillTitleAndTime'))
       return
     }
 
     const due = new Date(manualDue)
     if (Number.isNaN(due.getTime())) {
-      setError('提醒时间格式不正确。')
+      setError(t('errorInvalidTime'))
       return
     }
 
@@ -77,14 +79,14 @@ export function Composer({ onCreated }: ComposerProps): JSX.Element {
           onClick={() => setMode('ai')}
           type="button"
         >
-          AI 自然语言
+          {t('tabAi')}
         </button>
         <button
           className={mode === 'manual' ? 'tab active' : 'tab'}
           onClick={() => setMode('manual')}
           type="button"
         >
-          手动添加
+          {t('tabManual')}
         </button>
       </div>
 
@@ -94,8 +96,9 @@ export function Composer({ onCreated }: ComposerProps): JSX.Element {
             <div className="draft">
               <p className="draft-title">{draft.title}</p>
               <p className="draft-meta">
-                {formatDueAt(draft.dueAt)}
-                {(draft.repeat ?? 'none') !== 'none' && ` · ${repeatLabel(draft.repeat ?? 'none')}`}
+                {formatDueAt(draft.dueAt, language)}
+                {(draft.repeat ?? 'none') !== 'none' &&
+                  ` · ${repeatLabel(draft.repeat ?? 'none', language)}`}
               </p>
               {draft.note && <p className="draft-note">{draft.note}</p>}
               <div className="row">
@@ -105,7 +108,7 @@ export function Composer({ onCreated }: ComposerProps): JSX.Element {
                   onClick={() => void create(draft)}
                   type="button"
                 >
-                  {saving ? '添加中…' : '确认添加'}
+                  {saving ? t('adding') : t('confirmAdd')}
                 </button>
                 <button
                   className="ghost"
@@ -113,7 +116,7 @@ export function Composer({ onCreated }: ComposerProps): JSX.Element {
                   onClick={() => setDraft(null)}
                   type="button"
                 >
-                  取消
+                  {t('cancel')}
                 </button>
               </div>
             </div>
@@ -123,7 +126,7 @@ export function Composer({ onCreated }: ComposerProps): JSX.Element {
                 rows={2}
                 value={text}
                 onChange={(event) => setText(event.target.value)}
-                placeholder="用自然语言描述，例如：每周五下午 3 点提醒我交周报"
+                placeholder={t('aiPlaceholder')}
               />
               <button
                 className="primary"
@@ -131,7 +134,7 @@ export function Composer({ onCreated }: ComposerProps): JSX.Element {
                 onClick={() => void handleAiParse()}
                 type="button"
               >
-                {aiBusy ? 'AI 解析中…' : 'AI 解析'}
+                {aiBusy ? t('aiParsing') : t('aiParse')}
               </button>
             </>
           )}
@@ -141,7 +144,7 @@ export function Composer({ onCreated }: ComposerProps): JSX.Element {
           <input
             value={manualTitle}
             onChange={(event) => setManualTitle(event.target.value)}
-            placeholder="提醒内容"
+            placeholder={t('manualTitlePlaceholder')}
           />
           <div className="row">
             <input
@@ -155,7 +158,7 @@ export function Composer({ onCreated }: ComposerProps): JSX.Element {
               onClick={() => void handleManualCreate()}
               type="button"
             >
-              {saving ? '添加中…' : '添加提醒'}
+              {saving ? t('adding') : t('manualAdd')}
             </button>
           </div>
         </div>

@@ -93,7 +93,7 @@ class ReminderScheduler {
     if (!next) return
 
     const timer = scheduleAt(next, () => {
-      this.fire(reminder)
+      this.fire(reminder, next)
     })
     this.timers.set(reminder.id, timer)
   }
@@ -109,13 +109,20 @@ class ReminderScheduler {
     this.timers.clear()
   }
 
-  private fire(reminder: Reminder): void {
+  private fire(reminder: Reminder, scheduledFor: Date): void {
     this.remove(reminder.id)
+
+    const actual = new Date()
+    const driftMs = Math.round(actual.getTime() - scheduledFor.getTime())
+    console.log(
+      `[scheduler] reminder due: title="${reminder.title}" ` +
+        `planned=${scheduledFor.toISOString()} actual=${actual.toISOString()} driftMs=${driftMs}`
+    )
 
     if (reminder.repeat !== 'none') {
       const next = nextOccurrence(reminder, new Date(Date.now() + ONE_SECOND_MS))
       if (next) {
-        const timer = scheduleAt(next, () => this.fire(reminder))
+        const timer = scheduleAt(next, () => this.fire(reminder, next))
         this.timers.set(reminder.id, timer)
       }
     }

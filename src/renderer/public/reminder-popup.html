@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reminder</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: transparent;
+        overflow: hidden;
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB',
+          'Microsoft YaHei', sans-serif;
+        color: #e2e8f0;
+        user-select: none;
+      }
+      .panel {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        padding: 14px 16px;
+        background: #172033;
+        border: 1px solid #0284c7;
+        border-radius: 16px;
+        box-shadow: 0 16px 40px rgb(0 0 0 / 45%);
+        -webkit-app-region: drag;
+        cursor: grab;
+      }
+      button {
+        -webkit-app-region: no-drag;
+      }
+      .top {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+      }
+      .icon {
+        font-size: 18px;
+      }
+      .due {
+        flex: 1;
+        color: #94a3b8;
+        font-size: 12px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .close {
+        border: none;
+        background: transparent;
+        color: #94a3b8;
+        font-size: 18px;
+        line-height: 1;
+        cursor: pointer;
+        padding: 0 4px;
+      }
+      .close:hover {
+        color: #e2e8f0;
+      }
+      .title {
+        margin: 0 0 6px;
+        font-size: 16px;
+        font-weight: 600;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+      }
+      .note {
+        margin: 0;
+        color: #94a3b8;
+        font-size: 13px;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="panel">
+      <div class="top">
+        <span class="icon">⏰</span>
+        <span class="due" id="due"></span>
+        <button class="close" id="close" aria-label="Close">×</button>
+      </div>
+      <h2 class="title" id="title"></h2>
+      <p class="note" id="note"></p>
+    </div>
+    <script>
+      const query = new URLSearchParams(location.search)
+      document.getElementById('title').textContent = query.get('title') || ''
+      document.getElementById('due').textContent = query.get('due') || ''
+      document.getElementById('note').textContent = query.get('note') || ''
+      document.getElementById('close').addEventListener('click', () => window.close())
+    </script>
+  </body>
+</html>

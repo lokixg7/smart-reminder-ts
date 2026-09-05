@@ -1,5 +1,5 @@
 {
-  "name": "smart-reminder-ts",
+  "name": "smart-reminder",
   "version": "0.1.0",
   "description": "AI-powered desktop reminder agent: natural language in, on-time notifications out.",
   "main": "./out/main/index.js",
@@ -34,8 +34,8 @@
     "vite": "^5.4.11"
   },
   "build": {
-    "appId": "com.example.smart-reminder",
-    "productName": "Smart Reminder",
+    "appId": "com.smart-reminder.app",
+    "productName": "smart-reminder",
     "directories": {
       "output": "release"
     },
