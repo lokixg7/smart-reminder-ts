@@ -9,7 +9,7 @@ import type {
   ReminderUpdate
 } from '../shared/types'
 import { parseReminderWithAI } from './ai'
-import { setNotificationActivationHandler, showReminderNotification } from './notifier'
+import { setNotificationActivationHandler } from './notifier'
 import { showReminderPopup } from './popup'
 import { scheduler } from './scheduler'
 import { reminderStore } from './store'
@@ -105,12 +105,8 @@ function registerIpcHandlers(): void {
 
 async function onReminderDue(reminder: Reminder): Promise<void> {
   console.log(`[reminder] fired: ${reminder.title} (${reminder.id})`)
-  if (app.isPackaged) {
-    showReminderNotification(reminder)
-  } else {
-    console.log('[reminder] showing desktop popup')
-    showReminderPopup(reminder)
-  }
+  console.log('[reminder] showing desktop popup')
+  showReminderPopup(reminder)
 
   const now = new Date().toISOString()
   if (reminder.repeat === 'none') {
