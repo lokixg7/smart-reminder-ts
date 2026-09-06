@@ -366,6 +366,49 @@ button.danger {
   border: 1px solid var(--border);
 }
 
+.reminder.editing {
+  align-items: flex-start;
+}
+
+.reminder-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.edit-form-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.reminder-edit-form select,
+.reminder-edit-form textarea,
+.reminder-edit-form input {
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 10px;
+  font: inherit;
+}
+
+.reminder-edit-form input,
+.reminder-edit-form textarea,
+.reminder-edit-form select {
+  padding: 8px 10px;
+}
+
+.reminder-edit-form .edit-form-row input[type='datetime-local'] {
+  flex: 1;
+  min-width: 180px;
+}
+
+.edit-enabled {
+  align-self: flex-start;
+}
+
 .reminder-actions {
   display: flex;
   align-items: center;

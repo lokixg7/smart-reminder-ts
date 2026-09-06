@@ -63,7 +63,7 @@ export interface ReminderUpdate {
   enabled?: boolean
   lastTriggeredAt?: string
   completedAt?: string | null
-  repeatWeekday?: number
+  repeatWeekday?: number | null
   advanceMinutes?: number
 }
 

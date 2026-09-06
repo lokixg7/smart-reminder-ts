@@ -62,10 +62,16 @@ class ReminderStore {
     if (index === -1) return null
 
     const current = this.reminders[index]
-    const { completedAt, ...restPatch } = patch
+    const { completedAt, repeatWeekday, ...restPatch } = patch
     const next: Reminder = {
       ...current,
       ...restPatch,
+      repeatWeekday:
+        repeatWeekday === null
+          ? undefined
+          : repeatWeekday !== undefined
+            ? repeatWeekday
+            : current.repeatWeekday,
       completedAt:
         completedAt === null
           ? undefined

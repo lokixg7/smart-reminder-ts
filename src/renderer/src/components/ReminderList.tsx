@@ -1,6 +1,8 @@
+import { useState } from 'react'
 import type { Reminder } from '../../../shared/types'
 import { formatDueAt, repeatLabel } from '../lib/format'
 import { useI18n } from '../i18n'
+import { ReminderEditForm } from './ReminderEditForm'
 
 interface ReminderListProps {
   reminders: Reminder[]
@@ -14,6 +16,7 @@ export function ReminderList({
   completed = false
 }: ReminderListProps): JSX.Element {
   const { language, t } = useI18n()
+  const [editingId, setEditingId] = useState<string | null>(null)
 
   async function toggle(reminder: Reminder): Promise<void> {
     await window.api.updateReminder(reminder.id, { enabled: !reminder.enabled })
@@ -56,48 +59,80 @@ export function ReminderList({
           key={reminder.id}
           className={`reminder panel ${completed ? 'completed' : ''} ${
             reminder.enabled ? '' : 'disabled'
-          }`}
+          } ${editingId === reminder.id ? 'editing' : ''}`}
         >
-          <div className="reminder-main">
-            <h3>{reminder.title}</h3>
-            <p className="reminder-time">
-              {formatDueAt(reminder.dueAt, language)}
-              <span className="repeat-badge">{repeatLabel(reminder.repeat, language)}</span>
-              {(reminder.advanceMinutes ?? 0) > 0 && (
-                <span className="repeat-badge early">
-                  {t('earlyBadge', { minutes: reminder.advanceMinutes ?? 0 })}
-                </span>
-              )}
-            </p>
-            {reminder.note && <p className="reminder-note">{reminder.note}</p>}
-            {completed && reminder.completedAt && (
-              <p className="reminder-note">
-                {t('completedLabel')}:{' '}
-                {new Date(reminder.completedAt).toLocaleString(
-                  language === 'zh' ? 'zh-CN' : 'en-US'
+          {editingId === reminder.id ? (
+            <ReminderEditForm
+              reminder={reminder}
+              onCancel={() => setEditingId(null)}
+              onSaved={() => {
+                setEditingId(null)
+                onChange()
+              }}
+            />
+          ) : (
+            <>
+              <div className="reminder-main">
+                <h3>{reminder.title}</h3>
+                <p className="reminder-time">
+                  {formatDueAt(reminder.dueAt, language)}
+                  <span className="repeat-badge">
+                    {repeatLabel(reminder.repeat, language)}
+                  </span>
+                  {(reminder.advanceMinutes ?? 0) > 0 && (
+                    <span className="repeat-badge early">
+                      {t('earlyBadge', { minutes: reminder.advanceMinutes ?? 0 })}
+                    </span>
+                  )}
+                </p>
+                {reminder.note && <p className="reminder-note">{reminder.note}</p>}
+                {completed && reminder.completedAt && (
+                  <p className="reminder-note">
+                    {t('completedLabel')}:{' '}
+                    {new Date(reminder.completedAt).toLocaleString(
+                      language === 'zh' ? 'zh-CN' : 'en-US'
+                    )}
+                  </p>
                 )}
-              </p>
-            )}
-          </div>
-          <div className="reminder-actions">
-            {completed ? (
-              <button className="ghost" onClick={() => void restore(reminder)} type="button">
-                {t('restoreAction')}
-              </button>
-            ) : (
-              <label className="switch">
-                <input
-                  type="checkbox"
-                  checked={reminder.enabled}
-                  onChange={() => void toggle(reminder)}
-                />
-                <span>{reminder.enabled ? t('enabled') : t('paused')}</span>
-              </label>
-            )}
-            <button className="ghost danger" onClick={() => void remove(reminder)} type="button">
-              {t('deleteAction')}
-            </button>
-          </div>
+              </div>
+              <div className="reminder-actions">
+                {!completed && (
+                  <button
+                    type="button"
+                    className="ghost"
+                    onClick={() => setEditingId(reminder.id)}
+                  >
+                    {t('editAction')}
+                  </button>
+                )}
+                {completed ? (
+                  <button
+                    type="button"
+                    className="ghost"
+                    onClick={() => void restore(reminder)}
+                  >
+                    {t('restoreAction')}
+                  </button>
+                ) : (
+                  <label className="switch">
+                    <input
+                      type="checkbox"
+                      checked={reminder.enabled}
+                      onChange={() => void toggle(reminder)}
+                    />
+                    <span>{reminder.enabled ? t('enabled') : t('paused')}</span>
+                  </label>
+                )}
+                <button
+                  type="button"
+                  className="ghost danger"
+                  onClick={() => void remove(reminder)}
+                >
+                  {t('deleteAction')}
+                </button>
+              </div>
+            </>
+          )}
         </li>
       ))}
     </ul>
