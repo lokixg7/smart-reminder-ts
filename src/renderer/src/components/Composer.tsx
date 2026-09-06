@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { ReminderDraft } from '../../../shared/types'
+import type { ReminderDraft, RepeatRule } from '../../../shared/types'
 import { formatDueAt, repeatLabel } from '../lib/format'
 import { useI18n } from '../i18n'
 
@@ -20,6 +20,8 @@ export function Composer({ onCreated }: ComposerProps): JSX.Element {
 
   const [manualTitle, setManualTitle] = useState('')
   const [manualDue, setManualDue] = useState('')
+  const [repeat, setRepeat] = useState<RepeatRule>('none')
+  const [repeatWeekday, setRepeatWeekday] = useState<number | undefined>(undefined)
 
   async function handleAiParse(): Promise<void> {
     const trimmed = text.trim()
@@ -49,6 +51,8 @@ export function Composer({ onCreated }: ComposerProps): JSX.Element {
       setDraft(null)
       setManualTitle('')
       setManualDue('')
+      setRepeat('none')
+      setRepeatWeekday(undefined)
       onCreated()
     } else {
       setError(result.error)
@@ -68,7 +72,15 @@ export function Composer({ onCreated }: ComposerProps): JSX.Element {
       return
     }
 
-    await create({ title, dueAt: due.toISOString(), repeat: 'none' })
+    const draftToCreate: ReminderDraft = {
+      title,
+      dueAt: due.toISOString(),
+      repeat
+    }
+    if (repeat === 'weekly' && repeatWeekday !== undefined) {
+      draftToCreate.repeatWeekday = repeatWeekday
+    }
+    await create(draftToCreate)
   }
 
   return (
@@ -160,6 +172,41 @@ export function Composer({ onCreated }: ComposerProps): JSX.Element {
             >
               {saving ? t('adding') : t('manualAdd')}
             </button>
+          </div>
+          <div className="repeat-row">
+            <select
+              value={repeat}
+              onChange={(event) => {
+                const nextRepeat = event.target.value as RepeatRule
+                setRepeat(nextRepeat)
+                if (nextRepeat !== 'weekly') setRepeatWeekday(undefined)
+              }}
+              aria-label={t('repeatLabel')}
+            >
+              <option value="none">{t('repeatNone')}</option>
+              <option value="daily">{t('repeatDaily')}</option>
+              <option value="weekly">{t('repeatWeekly')}</option>
+              <option value="monthly">{t('repeatMonthly')}</option>
+            </select>
+            {repeat === 'weekly' && (
+              <select
+                value={repeatWeekday ?? ''}
+                onChange={(event) => {
+                  const value = event.target.value
+                  setRepeatWeekday(value === '' ? undefined : Number(value))
+                }}
+                aria-label={t('weekdaySame')}
+              >
+                <option value="">{t('weekdaySame')}</option>
+                <option value={1}>{t('weekdayMonday')}</option>
+                <option value={2}>{t('weekdayTuesday')}</option>
+                <option value={3}>{t('weekdayWednesday')}</option>
+                <option value={4}>{t('weekdayThursday')}</option>
+                <option value={5}>{t('weekdayFriday')}</option>
+                <option value={6}>{t('weekdaySaturday')}</option>
+                <option value={7}>{t('weekdaySunday')}</option>
+              </select>
+            )}
           </div>
         </div>
       )}

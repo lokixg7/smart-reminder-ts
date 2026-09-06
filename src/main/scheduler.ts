@@ -26,7 +26,12 @@ export function nextOccurrence(reminder: Reminder, from: Date): Date | null {
   }
 
   if (reminder.repeat === 'weekly') {
-    const targetWeekday = firstDue.getDay()
+    const weekday = reminder.repeatWeekday
+    const hasExplicitWeekday =
+      typeof weekday === 'number' && weekday >= 1 && weekday <= 7
+    const targetWeekday = hasExplicitWeekday
+      ? (weekday as number) % 7
+      : firstDue.getDay()
     const daysAhead = (targetWeekday - from.getDay() + 7) % 7
     const candidate = new Date(startOfDay(from))
     candidate.setDate(candidate.getDate() + daysAhead)

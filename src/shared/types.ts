@@ -40,6 +40,8 @@ export interface Reminder {
   lastTriggeredAt?: string
   /** Set when a one-time reminder has fired. Completed reminders are kept for history. */
   completedAt?: string
+  /** 1 = Monday … 7 = Sunday. Only used when repeat is 'weekly'. */
+  repeatWeekday?: number
 }
 
 export interface ReminderDraft {
@@ -47,6 +49,7 @@ export interface ReminderDraft {
   note?: string
   dueAt: string
   repeat?: RepeatRule
+  repeatWeekday?: number
 }
 
 export interface ReminderUpdate {
@@ -57,6 +60,7 @@ export interface ReminderUpdate {
   enabled?: boolean
   lastTriggeredAt?: string
   completedAt?: string | null
+  repeatWeekday?: number
 }
 
 export type ReminderResult =

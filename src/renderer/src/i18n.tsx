@@ -47,7 +47,16 @@ const en = {
   noCompletedTitle: 'No completed reminders',
   noCompletedHint: 'Completed one-time reminders will appear here.',
   completedLabel: 'Completed',
-  restoreAction: 'Restore'
+  restoreAction: 'Restore',
+  repeatLabel: 'Repeat',
+  weekdaySame: 'Same as start date',
+  weekdayMonday: 'Monday',
+  weekdayTuesday: 'Tuesday',
+  weekdayWednesday: 'Wednesday',
+  weekdayThursday: 'Thursday',
+  weekdayFriday: 'Friday',
+  weekdaySaturday: 'Saturday',
+  weekdaySunday: 'Sunday'
 } as const
 
 export type MessageKey = keyof typeof en
@@ -88,7 +97,16 @@ const zh: Record<MessageKey, string> = {
   noCompletedTitle: '暂无已完成的提醒',
   noCompletedHint: '完成的单次提醒会保留在这里。',
   completedLabel: '已完成',
-  restoreAction: '恢复'
+  restoreAction: '恢复',
+  repeatLabel: '重复',
+  weekdaySame: '同开始日期',
+  weekdayMonday: '周一',
+  weekdayTuesday: '周二',
+  weekdayWednesday: '周三',
+  weekdayThursday: '周四',
+  weekdayFriday: '周五',
+  weekdaySaturday: '周六',
+  weekdaySunday: '周日'
 }
 
 const dictionaries: Record<Language, Record<MessageKey, string>> = { en, zh }
