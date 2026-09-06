@@ -1,6 +1,13 @@
-import 'dotenv/config'
+import { app } from 'electron'
+import path from 'node:path'
+import dotenv from 'dotenv'
 import OpenAI from 'openai'
 import type { ParseReminderResult, ReminderDraft, RepeatRule } from '../shared/types'
+
+// Dev: dotenv reads <project-root>/.env from the process cwd.
+// Packaged: the cwd is not the project, so read the app user-data .env instead.
+const envPath = app.isPackaged ? path.join(app.getPath('userData'), '.env') : undefined
+dotenv.config(envPath ? { path: envPath } : undefined)
 
 interface AiConfig {
   apiKey: string | undefined

@@ -69,6 +69,11 @@ No API key? Use the "手动添加" (manual) tab in the UI, or set one of these e
 | `OPENAI_BASE_URL` | No | Switch to any OpenAI-compatible endpoint |
 | `OPENAI_MODEL` | No | Defaults to `gpt-4o-mini` |
 
+> **Packaged app**: when running the packaged `.app` (for example opened from Finder), the main
+> process reads the key from `~/Library/Application Support/smart-reminder/.env` instead of the
+> project `.env`. Create that file (same format as `.env.example`) and restart the app after
+> changing it.
+
 ## Scripts
 
 ```bash
