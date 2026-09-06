@@ -154,6 +154,8 @@ body {
 .repeat-row {
   display: flex;
   gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
 }
 
 .composer-body select {
@@ -163,6 +165,20 @@ body {
   border-radius: 10px;
   padding: 10px 12px;
   font: inherit;
+}
+
+.advance-field {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.advance-field input {
+  width: 70px;
+  padding: 4px 8px;
 }
 
 textarea,
@@ -343,6 +359,11 @@ button.danger {
   background: var(--bg-soft);
   font-size: 11px;
   color: var(--accent);
+}
+
+.repeat-badge.early {
+  color: var(--accent);
+  border: 1px solid var(--border);
 }
 
 .reminder-actions {

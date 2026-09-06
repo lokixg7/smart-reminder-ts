@@ -42,6 +42,8 @@ export interface Reminder {
   completedAt?: string
   /** 1 = Monday … 7 = Sunday. Only used when repeat is 'weekly'. */
   repeatWeekday?: number
+  /** How many minutes before dueAt the reminder should fire. Defaults to 0. */
+  advanceMinutes?: number
 }
 
 export interface ReminderDraft {
@@ -50,6 +52,7 @@ export interface ReminderDraft {
   dueAt: string
   repeat?: RepeatRule
   repeatWeekday?: number
+  advanceMinutes?: number
 }
 
 export interface ReminderUpdate {
@@ -61,6 +64,7 @@ export interface ReminderUpdate {
   lastTriggeredAt?: string
   completedAt?: string | null
   repeatWeekday?: number
+  advanceMinutes?: number
 }
 
 export type ReminderResult =

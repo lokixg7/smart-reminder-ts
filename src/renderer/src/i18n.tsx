@@ -56,7 +56,9 @@ const en = {
   weekdayThursday: 'Thursday',
   weekdayFriday: 'Friday',
   weekdaySaturday: 'Saturday',
-  weekdaySunday: 'Sunday'
+  weekdaySunday: 'Sunday',
+  advanceLabel: 'Remind earlier',
+  earlyBadge: '{minutes} min early'
 } as const
 
 export type MessageKey = keyof typeof en
@@ -106,7 +108,9 @@ const zh: Record<MessageKey, string> = {
   weekdayThursday: '周四',
   weekdayFriday: '周五',
   weekdaySaturday: '周六',
-  weekdaySunday: '周日'
+  weekdaySunday: '周日',
+  advanceLabel: '提前提醒',
+  earlyBadge: '提前 {minutes} 分钟'
 }
 
 const dictionaries: Record<Language, Record<MessageKey, string>> = { en, zh }

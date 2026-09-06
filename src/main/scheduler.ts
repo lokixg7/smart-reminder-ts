@@ -75,6 +75,33 @@ function scheduleAt(target: Date, task: () => void): NodeJS.Timeout {
   return setTimeout(task, Math.max(delay, 0))
 }
 
+function advanceMs(reminder: Reminder): number {
+  const minutes = reminder.advanceMinutes ?? 0
+  return Math.max(0, minutes) * 60_000
+}
+
+/**
+ * Finds the next occurrence whose adjusted fire time is at or after `earliestFire`.
+ * `cursor` is a time point after the previous occurrence to search from.
+ */
+function nextSchedulableOccurrence(
+  reminder: Reminder,
+  cursor: Date,
+  earliestFire: Date
+): Date | null {
+  let current = cursor
+  for (let i = 0; i < 10_000; i++) {
+    const due = nextOccurrence(reminder, current)
+    if (!due) return null
+
+    if (due.getTime() - advanceMs(reminder) >= earliestFire.getTime()) return due
+    if (reminder.repeat === 'none') return null
+
+    current = new Date(due.getTime() + ONE_SECOND_MS)
+  }
+  return null
+}
+
 type DueListener = (reminder: Reminder) => Promise<void> | void
 
 class ReminderScheduler {
@@ -94,11 +121,17 @@ class ReminderScheduler {
     this.remove(reminder.id)
     if (!reminder.enabled || reminder.completedAt) return
 
-    const next = nextOccurrence(reminder, new Date(Date.now() - ONE_SECOND_MS))
-    if (!next) return
+    const now = new Date()
+    const nextDue = nextSchedulableOccurrence(
+      reminder,
+      new Date(now.getTime() - ONE_SECOND_MS),
+      now
+    )
+    if (!nextDue) return
 
-    const timer = scheduleAt(next, () => {
-      this.fire(reminder, next)
+    const fireAt = new Date(nextDue.getTime() - advanceMs(reminder))
+    const timer = scheduleAt(fireAt, () => {
+      this.fire(reminder, nextDue)
     })
     this.timers.set(reminder.id, timer)
   }
@@ -114,20 +147,26 @@ class ReminderScheduler {
     this.timers.clear()
   }
 
-  private fire(reminder: Reminder, scheduledFor: Date): void {
+  private fire(reminder: Reminder, dueOccurrence: Date): void {
     this.remove(reminder.id)
 
+    const plannedFireAt = new Date(dueOccurrence.getTime() - advanceMs(reminder))
     const actual = new Date()
-    const driftMs = Math.round(actual.getTime() - scheduledFor.getTime())
+    const driftMs = Math.round(actual.getTime() - plannedFireAt.getTime())
     console.log(
       `[scheduler] reminder due: title="${reminder.title}" ` +
-        `planned=${scheduledFor.toISOString()} actual=${actual.toISOString()} driftMs=${driftMs}`
+        `planned=${plannedFireAt.toISOString()} actual=${actual.toISOString()} driftMs=${driftMs}`
     )
 
     if (reminder.repeat !== 'none') {
-      const next = nextOccurrence(reminder, new Date(Date.now() + ONE_SECOND_MS))
-      if (next) {
-        const timer = scheduleAt(next, () => this.fire(reminder, next))
+      const nextDue = nextSchedulableOccurrence(
+        reminder,
+        new Date(dueOccurrence.getTime() + ONE_SECOND_MS),
+        new Date(Date.now() + ONE_SECOND_MS)
+      )
+      if (nextDue) {
+        const fireAt = new Date(nextDue.getTime() - advanceMs(reminder))
+        const timer = scheduleAt(fireAt, () => this.fire(reminder, nextDue))
         this.timers.set(reminder.id, timer)
       }
     }

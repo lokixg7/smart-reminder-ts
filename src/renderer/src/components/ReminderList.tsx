@@ -63,6 +63,11 @@ export function ReminderList({
             <p className="reminder-time">
               {formatDueAt(reminder.dueAt, language)}
               <span className="repeat-badge">{repeatLabel(reminder.repeat, language)}</span>
+              {(reminder.advanceMinutes ?? 0) > 0 && (
+                <span className="repeat-badge early">
+                  {t('earlyBadge', { minutes: reminder.advanceMinutes ?? 0 })}
+                </span>
+              )}
             </p>
             {reminder.note && <p className="reminder-note">{reminder.note}</p>}
             {completed && reminder.completedAt && (

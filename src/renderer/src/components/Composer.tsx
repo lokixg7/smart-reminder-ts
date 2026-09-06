@@ -22,6 +22,7 @@ export function Composer({ onCreated }: ComposerProps): JSX.Element {
   const [manualDue, setManualDue] = useState('')
   const [repeat, setRepeat] = useState<RepeatRule>('none')
   const [repeatWeekday, setRepeatWeekday] = useState<number | undefined>(undefined)
+  const [advanceMinutes, setAdvanceMinutes] = useState('0')
 
   async function handleAiParse(): Promise<void> {
     const trimmed = text.trim()
@@ -53,6 +54,7 @@ export function Composer({ onCreated }: ComposerProps): JSX.Element {
       setManualDue('')
       setRepeat('none')
       setRepeatWeekday(undefined)
+      setAdvanceMinutes('0')
       onCreated()
     } else {
       setError(result.error)
@@ -80,6 +82,9 @@ export function Composer({ onCreated }: ComposerProps): JSX.Element {
     if (repeat === 'weekly' && repeatWeekday !== undefined) {
       draftToCreate.repeatWeekday = repeatWeekday
     }
+    const advance = Number(advanceMinutes)
+    draftToCreate.advanceMinutes =
+      Number.isInteger(advance) && advance >= 0 ? advance : 0
     await create(draftToCreate)
   }
 
@@ -111,6 +116,8 @@ export function Composer({ onCreated }: ComposerProps): JSX.Element {
                 {formatDueAt(draft.dueAt, language)}
                 {(draft.repeat ?? 'none') !== 'none' &&
                   ` · ${repeatLabel(draft.repeat ?? 'none', language)}`}
+                {(draft.advanceMinutes ?? 0) > 0 &&
+                  ` · ${t('earlyBadge', { minutes: draft.advanceMinutes ?? 0 })}`}
               </p>
               {draft.note && <p className="draft-note">{draft.note}</p>}
               <div className="row">
@@ -207,6 +214,17 @@ export function Composer({ onCreated }: ComposerProps): JSX.Element {
                 <option value={7}>{t('weekdaySunday')}</option>
               </select>
             )}
+            <label className="advance-field">
+              <span>{t('advanceLabel')}</span>
+              <input
+                type="number"
+                min={0}
+                step={1}
+                value={advanceMinutes}
+                onChange={(event) => setAdvanceMinutes(event.target.value)}
+              />
+              <span>{t('minutesUnit')}</span>
+            </label>
           </div>
         </div>
       )}

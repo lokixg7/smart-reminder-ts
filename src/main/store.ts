@@ -45,6 +45,7 @@ class ReminderStore {
       note: draft.note?.trim() ?? '',
       dueAt: new Date(draft.dueAt).toISOString(),
       repeat: draft.repeat ?? 'none',
+      advanceMinutes: draft.advanceMinutes ?? 0,
       enabled: true,
       createdAt: new Date().toISOString()
     }

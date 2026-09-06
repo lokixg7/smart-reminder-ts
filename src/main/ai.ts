@@ -23,16 +23,24 @@ function toDraft(value: unknown): ReminderDraft | null {
   const title = typeof record.title === 'string' ? record.title.trim() : ''
   const dueAt = typeof record.dueAt === 'string' ? record.dueAt : ''
   const repeat = typeof record.repeat === 'string' ? record.repeat : 'none'
+  const advanceMinutes =
+    typeof record.advanceMinutes === 'number' &&
+    Number.isInteger(record.advanceMinutes) &&
+    record.advanceMinutes >= 0
+      ? record.advanceMinutes
+      : undefined
 
   if (!title || Number.isNaN(Date.parse(dueAt))) return null
   if (!['none', 'daily', 'weekly', 'monthly'].includes(repeat)) return null
 
-  return {
+  const draft: ReminderDraft = {
     title,
     note: typeof record.note === 'string' ? record.note.trim() : undefined,
     dueAt: new Date(dueAt).toISOString(),
     repeat: repeat as RepeatRule
   }
+  if (advanceMinutes !== undefined) draft.advanceMinutes = advanceMinutes
+  return draft
 }
 
 export async function parseReminderWithAI(text: string): Promise<ParseReminderResult> {
@@ -50,10 +58,11 @@ export async function parseReminderWithAI(text: string): Promise<ParseReminderRe
     'You are the scheduling engine of a desktop reminder app.',
     'Convert the user message into ONE reminder and return ONLY valid JSON.',
     'Use this JSON schema:',
-    '{"title": string, "dueAt": ISO-8601 string, "repeat": "none"|"daily"|"weekly"|"monthly", "note"?: string}',
+    '{"title": string, "dueAt": ISO-8601 string, "repeat": "none"|"daily"|"weekly"|"monthly", "note"?: string, "advanceMinutes"?: integer >= 0}',
     `Current local time: ${now}`,
     'Interpret dates and times using the user local timezone. Never invent a title.',
-    'When the user says "every Friday at 3pm", repeat is "weekly" and dueAt is the next Friday 15:00.'
+    'When the user says "every Friday at 3pm", repeat is "weekly" and dueAt is the next Friday 15:00.',
+    'When the user asks to be reminded N minutes early, set advanceMinutes to N; otherwise omit it.'
   ].join('\n')
 
   try {
