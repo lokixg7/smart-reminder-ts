@@ -58,6 +58,18 @@ body {
   white-space: nowrap;
 }
 
+.launch-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.launch-hint {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
 .voice-options {
   display: flex;
   align-items: center;

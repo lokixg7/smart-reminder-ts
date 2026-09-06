@@ -2,6 +2,8 @@ import { app, BrowserWindow, ipcMain } from 'electron'
 import path from 'node:path'
 import { IPC_CHANNELS } from '../shared/types'
 import type {
+  LaunchAtLoginState,
+  LaunchAtLoginStatus,
   ParseReminderResult,
   Reminder,
   ReminderDraft,
@@ -110,6 +112,41 @@ function registerIpcHandlers(): void {
     IPC_CHANNELS.settings.updateSpeech,
     async (_event, patch: SpeechSettingsUpdate) => settingsStore.updateSpeechSettings(patch)
   )
+
+  ipcMain.handle(IPC_CHANNELS.settings.getLaunchAtLogin, () => readLaunchAtLoginStatus())
+
+  ipcMain.handle(
+    IPC_CHANNELS.settings.setLaunchAtLogin,
+    (_event, enabled: boolean): LaunchAtLoginStatus => {
+      if (!app.isPackaged) return readLaunchAtLoginStatus()
+      app.setLoginItemSettings({ openAtLogin: enabled })
+      return readLaunchAtLoginStatus()
+    }
+  )
+}
+
+function readLaunchAtLoginStatus(): LaunchAtLoginStatus {
+  if (!app.isPackaged) {
+    return { openAtLogin: false, status: 'unknown', supported: false }
+  }
+
+  try {
+    const settings = app.getLoginItemSettings()
+    const rawStatus = settings.status ?? 'unknown'
+    const validStates: LaunchAtLoginState[] = [
+      'not-registered',
+      'enabled',
+      'requires-approval',
+      'not-found',
+      'unknown'
+    ]
+    const status: LaunchAtLoginState = validStates.includes(rawStatus as LaunchAtLoginState)
+      ? (rawStatus as LaunchAtLoginState)
+      : 'unknown'
+    return { openAtLogin: settings.openAtLogin, status, supported: true }
+  } catch {
+    return { openAtLogin: false, status: 'unknown', supported: false }
+  }
 }
 
 function broadcastRemindersChanged(): void {
@@ -156,13 +193,16 @@ if (!gotTheLock) {
   void app.whenReady().then(async () => {
     const reminders = await reminderStore.list()
     await settingsStore.getSpeechSettings()
+    const openedAtLogin = process.platform === 'darwin' && app.getLoginItemSettings().wasOpenedAtLogin
 
     setNotificationActivationHandler(() => showMainWindow())
     scheduler.onDue(onReminderDue)
     scheduler.start(reminders)
 
     registerIpcHandlers()
-    createMainWindow()
+    // Standard desktop-app pattern: when the OS launches us at login, stay in the
+    // background and only create the window when the user activates the app.
+    if (!openedAtLogin) createMainWindow()
 
     app.on('activate', () => {
       if (BrowserWindow.getAllWindows().length === 0) createMainWindow()

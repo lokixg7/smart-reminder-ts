@@ -1,4 +1,5 @@
 import type {
+  LaunchAtLoginStatus,
   ParseReminderResult,
   Reminder,
   ReminderDraft,
@@ -17,6 +18,8 @@ export interface RendererApi {
   onRemindersChanged: (callback: () => void) => () => void
   getSpeechSettings: () => Promise<SpeechSettings>
   updateSpeechSettings: (patch: SpeechSettingsUpdate) => Promise<SpeechSettings>
+  getLaunchAtLogin: () => Promise<LaunchAtLoginStatus>
+  setLaunchAtLogin: (enabled: boolean) => Promise<LaunchAtLoginStatus>
 }
 
 declare global {

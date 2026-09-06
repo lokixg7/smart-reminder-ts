@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import type {
+  LaunchAtLoginStatus,
   Reminder,
   SpeechRepeatUnit,
   SpeechSettings,
@@ -22,6 +23,11 @@ export default function App(): JSX.Element {
   })
   const [repeatInput, setRepeatInput] = useState('1')
   const [view, setView] = useState<'upcoming' | 'completed'>('upcoming')
+  const [launchAtLogin, setLaunchAtLogin] = useState<LaunchAtLoginStatus>({
+    openAtLogin: false,
+    status: 'unknown',
+    supported: false
+  })
 
   const refresh = useCallback(async () => {
     try {
@@ -48,6 +54,10 @@ export default function App(): JSX.Element {
   }, [])
 
   useEffect(() => {
+    void window.api.getLaunchAtLogin().then(setLaunchAtLogin)
+  }, [])
+
+  useEffect(() => {
     setRepeatInput(String(speechSettings.repeatInterval))
   }, [speechSettings.repeatInterval])
 
@@ -60,6 +70,18 @@ export default function App(): JSX.Element {
     } catch (error) {
       console.error('Failed to save speech settings:', error)
       setSpeechSettings(previous)
+    }
+  }
+
+  async function updateLaunchAtLogin(enabled: boolean): Promise<void> {
+    const previous = launchAtLogin
+    setLaunchAtLogin({ ...launchAtLogin, openAtLogin: enabled })
+    try {
+      const saved = await window.api.setLaunchAtLogin(enabled)
+      setLaunchAtLogin(saved)
+    } catch (error) {
+      console.error('Failed to update launch-at-login:', error)
+      setLaunchAtLogin(previous)
     }
   }
 
@@ -137,6 +159,21 @@ export default function App(): JSX.Element {
                   </label>
                 )}
               </div>
+            )}
+            {launchAtLogin.supported && (
+              <span className="launch-control">
+                <label className="switch speech-toggle">
+                  <input
+                    type="checkbox"
+                    checked={launchAtLogin.openAtLogin}
+                    onChange={() => void updateLaunchAtLogin(!launchAtLogin.openAtLogin)}
+                  />
+                  <span>{t('launchAtLogin')}</span>
+                </label>
+                {launchAtLogin.status === 'requires-approval' && (
+                  <span className="launch-hint">{t('launchNeedsApproval')}</span>
+                )}
+              </span>
             )}
             <button
               type="button"

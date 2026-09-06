@@ -11,7 +11,9 @@ export const IPC_CHANNELS = {
   },
   settings: {
     getSpeech: 'settings:get-speech',
-    updateSpeech: 'settings:update-speech'
+    updateSpeech: 'settings:update-speech',
+    getLaunchAtLogin: 'settings:get-launch-at-login',
+    setLaunchAtLogin: 'settings:set-launch-at-login'
   }
 } as const
 
@@ -25,6 +27,22 @@ export interface SpeechSettings {
 }
 
 export type SpeechSettingsUpdate = Partial<SpeechSettings>
+
+export type LaunchAtLoginState =
+  | 'not-registered'
+  | 'enabled'
+  | 'requires-approval'
+  | 'not-found'
+  | 'unknown'
+
+export interface LaunchAtLoginStatus {
+  /** True when the OS has registered this app as a login item. */
+  openAtLogin: boolean
+  /** macOS login-item state; not meaningful on other platforms. */
+  status: LaunchAtLoginState
+  /** False in development, where OS login registration would target the Electron binary. */
+  supported: boolean
+}
 
 export type RepeatRule = 'none' | 'daily' | 'weekly' | 'monthly'
 

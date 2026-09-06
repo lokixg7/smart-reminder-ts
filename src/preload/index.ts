@@ -1,6 +1,7 @@
 import { contextBridge, ipcRenderer, type IpcRendererEvent } from 'electron'
 import { IPC_CHANNELS } from '../shared/types'
 import type {
+  LaunchAtLoginStatus,
   ParseReminderResult,
   Reminder,
   ReminderDraft,
@@ -30,7 +31,11 @@ const api = {
   getSpeechSettings: (): Promise<SpeechSettings> =>
     ipcRenderer.invoke(IPC_CHANNELS.settings.getSpeech),
   updateSpeechSettings: (patch: SpeechSettingsUpdate): Promise<SpeechSettings> =>
-    ipcRenderer.invoke(IPC_CHANNELS.settings.updateSpeech, patch)
+    ipcRenderer.invoke(IPC_CHANNELS.settings.updateSpeech, patch),
+  getLaunchAtLogin: (): Promise<LaunchAtLoginStatus> =>
+    ipcRenderer.invoke(IPC_CHANNELS.settings.getLaunchAtLogin),
+  setLaunchAtLogin: (enabled: boolean): Promise<LaunchAtLoginStatus> =>
+    ipcRenderer.invoke(IPC_CHANNELS.settings.setLaunchAtLogin, enabled)
 }
 
 contextBridge.exposeInMainWorld('api', api)
