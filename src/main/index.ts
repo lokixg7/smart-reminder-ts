@@ -6,12 +6,14 @@ import type {
   Reminder,
   ReminderDraft,
   ReminderResult,
-  ReminderUpdate
+  ReminderUpdate,
+  SpeechSettingsUpdate
 } from '../shared/types'
 import { parseReminderWithAI } from './ai'
 import { setNotificationActivationHandler } from './notifier'
 import { showReminderPopup } from './popup'
 import { scheduler } from './scheduler'
+import { settingsStore } from './settings'
 import { reminderStore } from './store'
 
 let mainWindow: BrowserWindow | null = null
@@ -101,12 +103,32 @@ function registerIpcHandlers(): void {
     IPC_CHANNELS.ai.parse,
     async (_event, text: string): Promise<ParseReminderResult> => parseReminderWithAI(text)
   )
+
+  ipcMain.handle(IPC_CHANNELS.settings.getSpeech, () => settingsStore.getSpeechSettings())
+
+  ipcMain.handle(
+    IPC_CHANNELS.settings.updateSpeech,
+    async (_event, patch: SpeechSettingsUpdate) => settingsStore.updateSpeechSettings(patch)
+  )
 }
 
 async function onReminderDue(reminder: Reminder): Promise<void> {
   console.log(`[reminder] fired: ${reminder.title} (${reminder.id})`)
   console.log('[reminder] showing desktop popup')
-  showReminderPopup(reminder)
+  const speechContent = reminder.note ? `${reminder.title}. ${reminder.note}` : reminder.title
+  const speechSettings = await settingsStore.getSpeechSettings()
+  const intervalMs =
+    speechSettings.repeatInterval *
+    (speechSettings.repeatUnit === 'second' ? 1_000 : 60_000)
+  showReminderPopup(
+    reminder,
+    speechSettings.enabled
+      ? {
+          content: speechContent,
+          repeatIntervalMs: speechSettings.repeatEnabled ? intervalMs : 0
+        }
+      : undefined
+  )
 
   const now = new Date().toISOString()
   if (reminder.repeat === 'none') {
@@ -124,6 +146,7 @@ if (!gotTheLock) {
 
   void app.whenReady().then(async () => {
     const reminders = await reminderStore.list()
+    await settingsStore.getSpeechSettings()
 
     setNotificationActivationHandler(() => showMainWindow())
     scheduler.onDue(onReminderDue)

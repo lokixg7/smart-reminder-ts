@@ -37,7 +37,11 @@ const en = {
   repeatNone: 'Once',
   repeatDaily: 'Daily',
   repeatWeekly: 'Weekly',
-  repeatMonthly: 'Monthly'
+  repeatMonthly: 'Monthly',
+  readAloud: 'Read aloud',
+  repeatVoice: 'Repeat voice',
+  minutesUnit: 'min',
+  secondsUnit: 'sec'
 } as const
 
 export type MessageKey = keyof typeof en
@@ -68,7 +72,11 @@ const zh: Record<MessageKey, string> = {
   repeatNone: '单次',
   repeatDaily: '每天',
   repeatWeekly: '每周',
-  repeatMonthly: '每月'
+  repeatMonthly: '每月',
+  readAloud: '语音播报',
+  repeatVoice: '重复播报',
+  minutesUnit: '分钟',
+  secondsUnit: '秒'
 }
 
 const dictionaries: Record<Language, Record<MessageKey, string>> = { en, zh }

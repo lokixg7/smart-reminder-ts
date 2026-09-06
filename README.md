@@ -1,14 +1,25 @@
 # Smart Reminder TS
 
 An AI-powered desktop reminder agent. Type in plain language ("remind me to submit the weekly
-report every Friday at 3pm") and the app schedules it for you with a native system notification.
+report every Friday at 3pm") and the app schedules it for you, shows a popup when the reminder is
+due, and can read the reminder aloud.
+
+## Features
+
+- Create reminders with AI in plain language, or add them manually
+- One-time, daily, weekly and monthly schedules
+- A bottom-right reminder popup that stays visible until you close it
+- **Voice broadcast (macOS):** reads the reminder title and note aloud when it fires, with an
+  optional repeat every N seconds or minutes (default: every 1 minute); can be turned off in the UI
+- English and Chinese interface
 
 ## Stack
 
-- Electron main process: local scheduling, system notifications, AI calls, JSON persistence
+- Electron main process: local scheduling, popup reminders, macOS text-to-speech, AI calls,
+  JSON persistence
 - Preload bridge: safe `contextBridge` API between the main process and the UI
 - React + TypeScript renderer: modern UI built with Vite via [electron-vite](https://electron-vite.org)
-- OpenAI-compatible API: natural-language parsing into structured reminders
+- OpenAI-compatible API (DeepSeek by default): natural-language parsing into structured reminders
 
 ## Project layout
 
@@ -23,8 +34,10 @@ smart-reminder-ts/
 │  ├─ main/                # Electron main process (Node.js)
 │  │  ├─ index.ts          # App lifecycle, window, IPC registration
 │  │  ├─ store.ts          # Reminder persistence (JSON in userData)
+│  │  ├─ settings.ts       # App settings persistence (e.g. speech settings)
 │  │  ├─ scheduler.ts      # One-shot & repeating in-process timer engine
-│  │  ├─ notifier.ts       # Native OS notifications
+│  │  ├─ popup.ts          # Bottom-right reminder popup + repeat speech timing
+│  │  ├─ speech.ts         # macOS text-to-speech (say)
 │  │  └─ ai.ts             # OpenAI-compatible natural language -> ReminderDraft
 │  ├─ preload/
 │  │  ├─ index.ts          # contextBridge API exposed as window.api

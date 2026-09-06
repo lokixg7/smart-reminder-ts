@@ -7,8 +7,23 @@ export const IPC_CHANNELS = {
   },
   ai: {
     parse: 'ai:parse-reminder'
+  },
+  settings: {
+    getSpeech: 'settings:get-speech',
+    updateSpeech: 'settings:update-speech'
   }
 } as const
+
+export type SpeechRepeatUnit = 'second' | 'minute'
+
+export interface SpeechSettings {
+  enabled: boolean
+  repeatEnabled: boolean
+  repeatInterval: number
+  repeatUnit: SpeechRepeatUnit
+}
+
+export type SpeechSettingsUpdate = Partial<SpeechSettings>
 
 export type RepeatRule = 'none' | 'daily' | 'weekly' | 'monthly'
 

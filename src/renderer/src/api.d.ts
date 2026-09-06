@@ -3,7 +3,9 @@ import type {
   Reminder,
   ReminderDraft,
   ReminderResult,
-  ReminderUpdate
+  ReminderUpdate,
+  SpeechSettings,
+  SpeechSettingsUpdate
 } from '../../shared/types'
 
 export interface RendererApi {
@@ -12,6 +14,8 @@ export interface RendererApi {
   updateReminder: (id: string, patch: ReminderUpdate) => Promise<ReminderResult>
   removeReminder: (id: string) => Promise<{ ok: boolean; error?: string }>
   parseReminder: (text: string) => Promise<ParseReminderResult>
+  getSpeechSettings: () => Promise<SpeechSettings>
+  updateSpeechSettings: (patch: SpeechSettingsUpdate) => Promise<SpeechSettings>
 }
 
 declare global {

@@ -5,7 +5,9 @@ import type {
   Reminder,
   ReminderDraft,
   ReminderResult,
-  ReminderUpdate
+  ReminderUpdate,
+  SpeechSettings,
+  SpeechSettingsUpdate
 } from '../shared/types'
 
 const api = {
@@ -17,7 +19,11 @@ const api = {
   removeReminder: (id: string): Promise<{ ok: boolean; error?: string }> =>
     ipcRenderer.invoke(IPC_CHANNELS.reminders.remove, id),
   parseReminder: (text: string): Promise<ParseReminderResult> =>
-    ipcRenderer.invoke(IPC_CHANNELS.ai.parse, text)
+    ipcRenderer.invoke(IPC_CHANNELS.ai.parse, text),
+  getSpeechSettings: (): Promise<SpeechSettings> =>
+    ipcRenderer.invoke(IPC_CHANNELS.settings.getSpeech),
+  updateSpeechSettings: (patch: SpeechSettingsUpdate): Promise<SpeechSettings> =>
+    ipcRenderer.invoke(IPC_CHANNELS.settings.updateSpeech, patch)
 }
 
 contextBridge.exposeInMainWorld('api', api)
