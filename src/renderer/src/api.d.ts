@@ -14,6 +14,7 @@ export interface RendererApi {
   updateReminder: (id: string, patch: ReminderUpdate) => Promise<ReminderResult>
   removeReminder: (id: string) => Promise<{ ok: boolean; error?: string }>
   parseReminder: (text: string) => Promise<ParseReminderResult>
+  onRemindersChanged: (callback: () => void) => () => void
   getSpeechSettings: () => Promise<SpeechSettings>
   updateSpeechSettings: (patch: SpeechSettingsUpdate) => Promise<SpeechSettings>
 }

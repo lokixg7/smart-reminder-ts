@@ -242,6 +242,44 @@ button.danger {
   font-size: 13px;
 }
 
+.status-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.status-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 6px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.status-tab.active {
+  background: var(--bg-soft);
+  border-color: var(--accent-strong);
+  color: var(--text);
+}
+
+.tab-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--accent-strong);
+  color: white;
+  font-size: 11px;
+}
+
 .reminder-list {
   list-style: none;
   margin: 0;
@@ -261,6 +299,10 @@ button.danger {
 
 .reminder.disabled {
   opacity: 0.55;
+}
+
+.reminder.completed {
+  border-color: var(--border);
 }
 
 .reminder-main h3 {

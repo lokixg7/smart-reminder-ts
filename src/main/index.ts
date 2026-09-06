@@ -112,6 +112,14 @@ function registerIpcHandlers(): void {
   )
 }
 
+function broadcastRemindersChanged(): void {
+  for (const window of BrowserWindow.getAllWindows()) {
+    if (!window.isDestroyed()) {
+      window.webContents.send(IPC_CHANNELS.reminders.changed)
+    }
+  }
+}
+
 async function onReminderDue(reminder: Reminder): Promise<void> {
   console.log(`[reminder] fired: ${reminder.title} (${reminder.id})`)
   console.log('[reminder] showing desktop popup')
@@ -132,10 +140,11 @@ async function onReminderDue(reminder: Reminder): Promise<void> {
 
   const now = new Date().toISOString()
   if (reminder.repeat === 'none') {
-    await reminderStore.remove(reminder.id)
+    await reminderStore.update(reminder.id, { completedAt: now })
   } else {
     await reminderStore.update(reminder.id, { lastTriggeredAt: now })
   }
+  broadcastRemindersChanged()
 }
 
 const gotTheLock = app.requestSingleInstanceLock()

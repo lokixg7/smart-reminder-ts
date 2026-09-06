@@ -87,7 +87,7 @@ class ReminderScheduler {
 
   upsert(reminder: Reminder): void {
     this.remove(reminder.id)
-    if (!reminder.enabled) return
+    if (!reminder.enabled || reminder.completedAt) return
 
     const next = nextOccurrence(reminder, new Date(Date.now() - ONE_SECOND_MS))
     if (!next) return

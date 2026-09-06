@@ -3,7 +3,8 @@ export const IPC_CHANNELS = {
     list: 'reminders:list',
     create: 'reminders:create',
     update: 'reminders:update',
-    remove: 'reminders:remove'
+    remove: 'reminders:remove',
+    changed: 'reminders:changed'
   },
   ai: {
     parse: 'ai:parse-reminder'
@@ -37,6 +38,8 @@ export interface Reminder {
   enabled: boolean
   createdAt: string
   lastTriggeredAt?: string
+  /** Set when a one-time reminder has fired. Completed reminders are kept for history. */
+  completedAt?: string
 }
 
 export interface ReminderDraft {
@@ -53,6 +56,7 @@ export interface ReminderUpdate {
   repeat?: RepeatRule
   enabled?: boolean
   lastTriggeredAt?: string
+  completedAt?: string | null
 }
 
 export type ReminderResult =

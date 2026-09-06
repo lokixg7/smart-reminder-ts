@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer } from 'electron'
+import { contextBridge, ipcRenderer, type IpcRendererEvent } from 'electron'
 import { IPC_CHANNELS } from '../shared/types'
 import type {
   ParseReminderResult,
@@ -20,6 +20,13 @@ const api = {
     ipcRenderer.invoke(IPC_CHANNELS.reminders.remove, id),
   parseReminder: (text: string): Promise<ParseReminderResult> =>
     ipcRenderer.invoke(IPC_CHANNELS.ai.parse, text),
+  onRemindersChanged: (callback: () => void): (() => void) => {
+    const listener = (_event: IpcRendererEvent): void => callback()
+    ipcRenderer.on(IPC_CHANNELS.reminders.changed, listener)
+    return () => {
+      ipcRenderer.removeListener(IPC_CHANNELS.reminders.changed, listener)
+    }
+  },
   getSpeechSettings: (): Promise<SpeechSettings> =>
     ipcRenderer.invoke(IPC_CHANNELS.settings.getSpeech),
   updateSpeechSettings: (patch: SpeechSettingsUpdate): Promise<SpeechSettings> =>

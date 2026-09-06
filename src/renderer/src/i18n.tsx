@@ -41,7 +41,13 @@ const en = {
   readAloud: 'Read aloud',
   repeatVoice: 'Repeat voice',
   minutesUnit: 'min',
-  secondsUnit: 'sec'
+  secondsUnit: 'sec',
+  tabUpcoming: 'Upcoming',
+  tabCompleted: 'Completed',
+  noCompletedTitle: 'No completed reminders',
+  noCompletedHint: 'Completed one-time reminders will appear here.',
+  completedLabel: 'Completed',
+  restoreAction: 'Restore'
 } as const
 
 export type MessageKey = keyof typeof en
@@ -76,7 +82,13 @@ const zh: Record<MessageKey, string> = {
   readAloud: '语音播报',
   repeatVoice: '重复播报',
   minutesUnit: '分钟',
-  secondsUnit: '秒'
+  secondsUnit: '秒',
+  tabUpcoming: '待提醒',
+  tabCompleted: '已完成',
+  noCompletedTitle: '暂无已完成的提醒',
+  noCompletedHint: '完成的单次提醒会保留在这里。',
+  completedLabel: '已完成',
+  restoreAction: '恢复'
 }
 
 const dictionaries: Record<Language, Record<MessageKey, string>> = { en, zh }

@@ -20,6 +20,7 @@ export default function App(): JSX.Element {
     repeatInterval: 1,
     repeatUnit: 'minute'
   })
+  const [view, setView] = useState<'upcoming' | 'completed'>('upcoming')
 
   const refresh = useCallback(async () => {
     try {
@@ -32,6 +33,13 @@ export default function App(): JSX.Element {
 
   useEffect(() => {
     void refresh().finally(() => setLoading(false))
+  }, [refresh])
+
+  useEffect(() => {
+    const unsubscribe = window.api.onRemindersChanged(() => {
+      void refresh()
+    })
+    return unsubscribe
   }, [refresh])
 
   useEffect(() => {
@@ -50,10 +58,8 @@ export default function App(): JSX.Element {
     }
   }
 
-  const countLabel =
-    language === 'en'
-      ? `${reminders.length} reminder${reminders.length === 1 ? '' : 's'}`
-      : `${reminders.length} 条`
+  const upcomingReminders = reminders.filter((reminder) => !reminder.completedAt)
+  const completedReminders = reminders.filter((reminder) => reminder.completedAt)
 
   return (
     <main className="app">
@@ -129,11 +135,32 @@ export default function App(): JSX.Element {
         <p className="hint">{t('loading')}</p>
       ) : (
         <>
-          <div className="section-title">
-            <h2>{t('remindersTitle')}</h2>
-            <span>{countLabel}</span>
+          <div className="status-tabs" role="tablist">
+            <button
+              type="button"
+              className={view === 'upcoming' ? 'status-tab active' : 'status-tab'}
+              onClick={() => setView('upcoming')}
+            >
+              {t('tabUpcoming')}
+            </button>
+            <button
+              type="button"
+              className={view === 'completed' ? 'status-tab active' : 'status-tab'}
+              onClick={() => setView('completed')}
+            >
+              {t('tabCompleted')}
+              <span className="tab-count">{completedReminders.length}</span>
+            </button>
           </div>
-          <ReminderList reminders={reminders} onChange={() => void refresh()} />
+          {view === 'upcoming' ? (
+            <ReminderList reminders={upcomingReminders} onChange={() => void refresh()} />
+          ) : (
+            <ReminderList
+              completed
+              reminders={completedReminders}
+              onChange={() => void refresh()}
+            />
+          )}
         </>
       )}
     </main>
