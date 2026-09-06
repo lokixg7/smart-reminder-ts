@@ -19,6 +19,7 @@ export function Composer({ onCreated }: ComposerProps): JSX.Element {
   const [error, setError] = useState('')
 
   const [manualTitle, setManualTitle] = useState('')
+  const [manualNote, setManualNote] = useState('')
   const [manualDue, setManualDue] = useState('')
   const [repeat, setRepeat] = useState<RepeatRule>('none')
   const [repeatWeekday, setRepeatWeekday] = useState<number | undefined>(undefined)
@@ -51,6 +52,7 @@ export function Composer({ onCreated }: ComposerProps): JSX.Element {
     if (result.ok) {
       setDraft(null)
       setManualTitle('')
+      setManualNote('')
       setManualDue('')
       setRepeat('none')
       setRepeatWeekday(undefined)
@@ -76,6 +78,7 @@ export function Composer({ onCreated }: ComposerProps): JSX.Element {
 
     const draftToCreate: ReminderDraft = {
       title,
+      note: manualNote.trim() || undefined,
       dueAt: due.toISOString(),
       repeat
     }
@@ -164,6 +167,12 @@ export function Composer({ onCreated }: ComposerProps): JSX.Element {
             value={manualTitle}
             onChange={(event) => setManualTitle(event.target.value)}
             placeholder={t('manualTitlePlaceholder')}
+          />
+          <textarea
+            rows={2}
+            value={manualNote}
+            onChange={(event) => setManualNote(event.target.value)}
+            placeholder={t('notePlaceholder')}
           />
           <div className="row">
             <input
