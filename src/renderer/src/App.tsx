@@ -20,6 +20,7 @@ export default function App(): JSX.Element {
     repeatInterval: 1,
     repeatUnit: 'minute'
   })
+  const [repeatInput, setRepeatInput] = useState('1')
   const [view, setView] = useState<'upcoming' | 'completed'>('upcoming')
 
   const refresh = useCallback(async () => {
@@ -46,6 +47,10 @@ export default function App(): JSX.Element {
     void window.api.getSpeechSettings().then(setSpeechSettings)
   }, [])
 
+  useEffect(() => {
+    setRepeatInput(String(speechSettings.repeatInterval))
+  }, [speechSettings.repeatInterval])
+
   async function updateSpeech(patch: SpeechSettingsUpdate): Promise<void> {
     const previous = speechSettings
     setSpeechSettings({ ...speechSettings, ...patch })
@@ -55,6 +60,21 @@ export default function App(): JSX.Element {
     } catch (error) {
       console.error('Failed to save speech settings:', error)
       setSpeechSettings(previous)
+    }
+  }
+
+  function handleRepeatInput(value: string): void {
+    setRepeatInput(value)
+    const parsed = Number(value)
+    if (/^[1-9]\d*$/.test(value) && Number.isInteger(parsed) && parsed >= 1) {
+      void updateSpeech({ repeatInterval: parsed })
+    }
+  }
+
+  function handleRepeatBlur(): void {
+    const parsed = Number(repeatInput)
+    if (!/^[1-9]\d*$/.test(repeatInput) || !Number.isInteger(parsed) || parsed < 1) {
+      setRepeatInput(String(speechSettings.repeatInterval))
     }
   }
 
@@ -73,43 +93,50 @@ export default function App(): JSX.Element {
                 checked={speechSettings.enabled}
                 onChange={() => void updateSpeech({ enabled: !speechSettings.enabled })}
               />
-              <span>{t('readAloud')}</span>
+              <span>{t('voiceBroadcast')}</span>
             </label>
-            <label className="switch speech-toggle">
-              <input
-                type="checkbox"
-                disabled={!speechSettings.enabled}
-                checked={speechSettings.repeatEnabled}
-                onChange={() =>
-                  void updateSpeech({ repeatEnabled: !speechSettings.repeatEnabled })
-                }
-              />
-              <span>{t('repeatVoice')}</span>
-            </label>
-            {speechSettings.enabled && speechSettings.repeatEnabled && (
-              <label className="interval-field">
-                <input
-                  type="number"
-                  min={1}
-                  step={1}
-                  value={speechSettings.repeatInterval}
-                  onChange={(event) => {
-                    const minutes = Number(event.target.value)
-                    if (Number.isInteger(minutes) && minutes >= 1) {
-                      void updateSpeech({ repeatInterval: minutes })
-                    }
-                  }}
-                />
-                <select
-                  value={speechSettings.repeatUnit}
-                  onChange={(event) =>
-                    void updateSpeech({ repeatUnit: event.target.value as SpeechRepeatUnit })
-                  }
-                >
-                  <option value="second">{t('secondsUnit')}</option>
-                  <option value="minute">{t('minutesUnit')}</option>
-                </select>
-              </label>
+            {speechSettings.enabled && (
+              <div className="voice-options">
+                <label className="voice-radio">
+                  <input
+                    type="radio"
+                    checked={!speechSettings.repeatEnabled}
+                    onChange={() => void updateSpeech({ repeatEnabled: false })}
+                  />
+                  <span>{t('speakOnce')}</span>
+                </label>
+                <label className="voice-radio">
+                  <input
+                    type="radio"
+                    checked={speechSettings.repeatEnabled}
+                    onChange={() => void updateSpeech({ repeatEnabled: true })}
+                  />
+                  <span>{t('repeatEvery')}</span>
+                </label>
+                {speechSettings.repeatEnabled && (
+                  <label className="interval-field">
+                    <input
+                      type="number"
+                      min={1}
+                      step={1}
+                      value={repeatInput}
+                      onChange={(event) => handleRepeatInput(event.target.value)}
+                      onBlur={handleRepeatBlur}
+                    />
+                    <select
+                      value={speechSettings.repeatUnit}
+                      onChange={(event) =>
+                        void updateSpeech({
+                          repeatUnit: event.target.value as SpeechRepeatUnit
+                        })
+                      }
+                    >
+                      <option value="second">{t('secondsUnit')}</option>
+                      <option value="minute">{t('minutesUnit')}</option>
+                    </select>
+                  </label>
+                )}
+              </div>
             )}
             <button
               type="button"
